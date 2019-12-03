@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head><title>Net Game</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+
+<!--><style> 
+body {padding: 0; margin: 0;
+-webkit-user-select: none;
+} 
+
+</style>-->
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script>
+var song;
+var swing;
+var win;
+
+function preload() {
+	song = loadSound('data/ykk.mp3');
+	swing = loadSound('data/swing.mp3');
+	win = loadSound('data/ding.mp3');
+	butt = loadImage('data/butt.png');
+	net = loadImage('data/net.png');
+}
+
+function setup() {
+	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	swing.setVolume(0.5);
+	win.setVolume(0.5);
+	//analyzer= new p5.Amplitude();
+}
+
+function touchEnded(){
+	noStroke();
+	fill(255);
+	rect(displayWidth/2-120, 30, 200, 200);
+}
+
+function draw() {
+	//background(255);
+	var acc_z = floor(accelerationZ);
+	
+	if(acc_z>10){
+		swing.playMode('restart');
+		swing.play();
+		var caught = floor(random(0, 50));
+	}
+	
+	if(caught>48){
+		image(butt, displayWidth/2-120, 30, 200, 200);
+		win.playMode('restart');
+		win.play();
+	} 
+	
+	image(net, 0, 0, displayWidth, displayHeight);
+}
+
+function get_permission_to_use_motion() { // DO NOT CHANGE!
+    if (typeof DeviceMotionEvent !== "undefined") { 
+		if (typeof DeviceMotionEvent.requestPermission === 'function') {
+		  DeviceMotionEvent.requestPermission()
+			.then(permissionState => {
+			  if (permissionState === 'granted') {
+			  	document.getElementById("get_permission_button").style.display="none"	
+			  	loop();		
+			  }
+			})
+			.catch(console.error);
+		} else{
+			alert("not an ios13 device")
+			console.log("not an ios13 device")
+			document.getElementById("get_permission_button").style.display="none"	
+		}
+	
+	}else {
+			alert("not an mobile device")
+			console.log("not an mobile device")
+			document.getElementById("get_permission_button").style.display="none"	
+	
+    }
+}
+
+function BlockMove(event) {
+	event.preventDefault() ;
+}
+</script>
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+#get_permission_button{
+font-size: 60pt;
+color: rgb(255,0,0);
+display: block;
+position: absolute;
+top: 90px;
+left: 20px;
+z-index: 1;
+}
+</style>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>

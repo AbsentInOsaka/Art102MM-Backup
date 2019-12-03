@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>The Hivemine</title>
+ 	<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+#get_permission_button{
+font-size: 60pt;
+color: rgb(255,0,0);
+display: block;
+position: absolute;
+top: 90px;
+left: 20px;
+z-index: 1;
+}
+</style>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/libraries/geolocation/p5.geolocation.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.dom.js"></script>
+
+<script>
+
+var latitude = 0;
+var longitude = 0;
+var mic;
+var recorder;
+var soundFile;
+var state = 0;
+var analyzer;
+	
+function setup() {
+	createCanvas(displayWidth, displayHeight);
+	
+	//button
+	button = createButton('TAP to Rec');
+	button.position(displayWidth/2+50, 30);
+	button.touchEnded(startRec);
+	
+	//coord
+	watchPosition(positionChanged);
+	
+	//playback
+	mic = new p5.AudioIn();
+	mic.start();
+	recorder = new p5.SoundRecorder();
+	recorder.setInput(mic);
+	soundFile = new p5.SoundFile();
+	analyzer = new p5.Amplitude();
+	
+}
+
+function positionChanged(position){
+	latitude = position.latitude;
+	longitude = position.longitude;
+}	 
+
+function draw(){
+	background(255);
+	
+	fill(0);
+    textSize(30);
+    text("Lat:", 10, 40);
+    text(nf(latitude, 2, 4), 70, 40); 
+    text("Lon:", 10, 80);
+    text(nf(longitude, 2, 4), 70, 80); 
+}
+
+function startRec() {
+	var amp = analyzer.getLevel
+	//noStroke();
+	
+	if (state === 0 && mic.enabled) {
+		recorder.record(soundFile);
+		
+		fill(255, 0, 0);
+		ellipse(displayWidth/2, displayHeight/2, 20+amp*300, 20+amp*300); 
+		fill(0);
+		text('Recording now!', 20, 20);
+		state++;
+	} else if (state === 1) {
+		recorder.stop(); // stop recorder, and send the result to soundFile
+
+		fill(0, 255, 0);
+		ellipse(displayWidth/2, displayHeight/2, 20+amp*300, 20+amp*300);
+		fill(0);
+		text('Recording stopped.', 20, 20);
+		state++;
+	} else if (state === 2) {
+		soundFile.play(); // play the result!
+		state++;
+	}
+}
+
+function get_permission_to_use_motion() { // DO NOT CHANGE!
+    if (typeof DeviceMotionEvent !== "undefined") { 
+		if (typeof DeviceMotionEvent.requestPermission === 'function') {
+		  DeviceMotionEvent.requestPermission()
+			.then(permissionState => {
+			  if (permissionState === 'granted') {
+			  	document.getElementById("get_permission_button").style.display="none"	
+			  	loop();		
+			  }
+			})
+			.catch(console.error);
+		} else{
+			alert("not an ios13 device")
+			console.log("not an ios13 device")
+			document.getElementById("get_permission_button").style.display="none"	
+		}
+	
+	}else {
+			alert("not an mobile device")
+			console.log("not an mobile device")
+			document.getElementById("get_permission_button").style.display="none"	
+	
+    }
+}
+
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head><title>Bubblegum Pop!</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="../images/circle180.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+
+<!-- Android, not sure if working --> 
+<meta name="theme-color" content="#014473">
+
+<style> 
+body {
+padding: 0; 
+margin: 0;
+-webkit-user-select: none;
+} 
+</style>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script>
+	//song used - Truck by The Octopus Project
+
+	var myx, myy;
+	var myx1, myy1;
+	var myx2, myy2;
+	var myx3, myy3;
+	var elipse_diameter;
+	var mySound;
+	var s;
+	var mc1, mc2, mc3, mc4, mc5, mc6;
+	var colorPick1, colorPick2;
+	var color1, color2, color3, color4, color5, color6;
+	
+	function preload() {
+		mySound = loadSound('data/truck.mp3');
+	}
+
+	//This function is automatically triggered when the p5 library is loaded
+	function setup() {
+		createCanvas(displayWidth, displayHeight);
+		frameRate(24);
+		mySound.setVolume(0.5);
+		mySound.play();
+		//mySound.loop();
+		
+		//color
+		
+	}
+	
+	//This function is automatically triggered when the p5 library is loaded 
+	//after the setup function. Unlike plain javascript functions, it is runs repeatedly
+	//iphone is 3 seconds ahead (10?)
+	  
+	function draw() {
+		var s = mySound.currentTime();
+		
+		push();
+		var myc1 = color(255, random(200, 255), 255); //big circles
+		var myc2 = color(random(200, 255), 255, 255);
+		//var colorPick1 = [myc1, myc2];
+		//var color1 = random(colorPick1);
+		//var color2 = random(colorPick1);
+					
+			if (s > 9) {
+			background(myc2);
+			}
+			
+			if (s > 7) {
+			fill(myc1);
+			noStroke();
+			ellipse(displayWidth/2, displayHeight/2, displayWidth, displayHeight);
+			}
+		
+			if (s > 4) {
+			fill(myc2);
+			noStroke();
+			ellipse(displayWidth/2, displayHeight/2, displayWidth/2, displayHeight/2);
+			}
+			
+			if (s > 2) {
+			fill(myc1);
+			noStroke();
+			ellipse(displayWidth/2, displayHeight/2, displayWidth/4, displayHeight/4);
+			}
+											
+			pop();
+		
+		push();
+		var elipse_diameter = random(100)
+		var myx = random(displayWidth);
+		var myy = random(displayHeight);
+		var myx1 = random(displayWidth);
+		var myy1 = random(displayHeight);
+		var myx2 = random(displayWidth);
+		var myy2 = random(displayHeight);
+		var myx3 = random(displayWidth);
+		var myy3 = random(displayHeight);
+		//console.log(myred)
+		stroke(255, 255, 255);
+		var myc3 = color(255,160,100); //orange  //small circles
+		var myc4 = color(0,255,145); //esmerald
+		var myc5 = color(255,255,146); //pale yellow
+		var myc6 = color(218,146,255); //lavender
+		
+		//var colorPick2=[myc3, myc4, myc5, myc6]; 
+		
+		//var color3 = random(colorPick2);
+		//var color4 = random(colorPick2);
+		//var color5 = random(colorPick2);
+		//var color6 = random(colorPick2);
+		
+		if (s > 11) {
+		fill(myc3);
+		ellipse(myx, myy, elipse_diameter, elipse_diameter);
+		}
+		if (s > 13) {
+		fill(myc4);
+		ellipse(myx1, myy1, elipse_diameter, elipse_diameter);
+		}
+		if (s > 16) {
+		fill(myc5);
+		ellipse(myx2, myy2, elipse_diameter, elipse_diameter);
+		}
+		if (s > 18) {
+		fill(myc6);
+		ellipse(myx3, myy3, elipse_diameter, elipse_diameter);
+		}
+		pop();
+		
+		
+		/*push();
+		textSize(30);
+		text(s, displayWidth/2, displayHeight/2); 
+		pop();*/
+		
+	}
+	
+	//this function is called when a ontouchmove is triggered in the body. It is not a p5 function
+	function BlockMove(event) {
+		// Tell the browser to not to "bounce" the content.
+		event.preventDefault();
+	}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>

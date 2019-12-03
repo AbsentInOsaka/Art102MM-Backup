@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Buzzing Lights</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="myicon144.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+<style>
+body {padding: 0; margin: 0;} 
+</style>  
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="http://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script language="javascript" type="text/javascript" src="http://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.dom.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+<script>
+//Look at What the Light Did Now by Little Wings
+
+var db;   
+var song;
+var back;
+var myred;
+var mygreen;
+var myblue;
+
+function preload() {
+	song = loadSound('data/lightnow.mp3');	
+	back = loadImage('data/grasspixn.jpg');
+}
+
+function setup() {
+	song.setVolume(0.5);
+	song.play();
+
+	/////
+		
+	// Initialize Firebase and firestore, you get the config settings from the firebase console
+	// Your web app's Firebase configuration
+ var firebaseConfig = {
+    apiKey: "AIzaSyAbdmenPjXbbo317b1vr6H5J6oofbx0EoY",
+    authDomain: "buzzing-257809.firebaseapp.com",
+    databaseURL: "https://buzzing-257809.firebaseio.com",
+    projectId: "buzzing-257809",
+    storageBucket: "buzzing-257809.appspot.com",
+    messagingSenderId: "239489523688",
+    appId: "1:239489523688:web:63c5fb5d98a10475e70e5d"
+  };
+  	// Initialize Firebase
+  	firebase.initializeApp(firebaseConfig);
+
+	db = firebase.firestore();
+	//db.settings({timestampsInSnapshots: true}) 
+}
+ 
+function touchEnded() {
+	db.collection("buzzing").doc("buzzingData").update({
+		x_pos: mouseX,
+		y_pos: mouseY,
+		r: myred,
+		g: mygreen,
+		b: myblue,
+	})
+}
+
+var canvas1 = function(firef) {
+	firef.setup = function() {
+		var canvas = createCanvas(displayWidth, displayHeight);
+		canvas.style('z-index', '1');
+		analyzer= new p5.Amplitude();
+	
+		myred = floor(random(255));
+		mygreen = floor(random(255));
+		myblue = floor(random(255));
+	}
+	
+	firef.draw = function(){
+	// "listen" for changes to the firestore collection
+	db.collection("buzzing").doc("buzzingData").onSnapshot(function(returndata) {
+		//var my_x=returndata.data().mouse_x
+		var xPos = returndata.data().x_pos
+		var yPos = returndata.data().y_pos
+		var the_red = returndata.data().r
+		var the_green = returndata.data().g
+		var the_blue = returndata.data().b
+		var amp = analyzer.getLevel();
+		
+		//fireflies
+		firef.noStroke();
+		firef.fill(the_red, the_green, the_blue, amp*800);
+		firef.ellipse(xPos, yPos, 40+amp*100, 40+amp*100);
+		firef.stroke(the_red, the_green, the_blue);
+		firef.strokeWeight(30*amp);
+		firef.fill(255);
+		firef.ellipse(xPos, yPos, 20, 20);
+		
+		xPos += random(-2,2);
+		yPos += random(-2,2);
+		if(xPos>displayWidth+50, xPos<-50){
+			xPos = random(displayWidth);
+			yPos = random(displayHeight);
+		}
+		if(yPos>displayHeight+50, yPos<-50){
+			xPos = random(displayWidth);  
+			yPos = random(displayHeight);
+		}
+	});
+};
+}
+
+var canvas2 = function(forest) {
+	
+	forest.setup = function(){
+		var canvas2 = forest.createCanvas(displayWidth, displayHeight);
+		canvas2.style('z-index', '0');
+	};
+	
+	forest.draw = function(){
+		var draw_x = map(rotationY, -90, 90, 0, displayWidth, true);
+		var draw_y = map(rotationX, -180, 180, 0, displayHeight, true);
+		
+		//background
+		forest.background(back, 255);
+		forest.push();
+		forest.translate(-displayWidth, -displayHeight);
+		forest.image(back, draw_x, draw_y, displayWidth*2, displayHeight*2)
+		forest.pop();
+		
+		//tree
+	
+		//trunk
+		forest.push();
+		forest.stroke(64, 45, 16);
+		forest.strokeWeight(50);
+		forest.line(draw_x, draw_y, displayWidth/2, displayHeight/2);
+		forest.pop();
+	
+		//leaves
+		forest.push();
+		forest.strokeWeight(amp*50);
+		forest.stroke(45, 76, 140);
+		forest.fill(45, 76, 140);
+		forest.ellipse(displayWidth/2-rotationY, displayHeight/2-rotationX, 220, 220);
+		forest.ellipse(displayWidth/2-rotationY*2, displayHeight/2-rotationX*2, 160, 160);
+		forest.ellipse(displayWidth/2-rotationY*3, displayHeight/2-rotationX*3, 100, 100);
+		forest.pop();
+	};
+}
+	
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+
+</body></html>
+

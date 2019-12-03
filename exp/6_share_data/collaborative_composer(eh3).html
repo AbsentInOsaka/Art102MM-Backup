@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Buzzing Lights</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="myicon144.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+<style>
+body {padding: 0; margin: 0;} 
+</style>  
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="http://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+<script>
+
+var db;   
+var song;
+var back;
+var fireflies = [];
+var fireAmount;
+
+function preload() {
+	song = loadSound('data/lightnow.mp3');	
+	back = loadImage('data/grasspixn.jpg');
+}
+
+function setup() {
+	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	analyzer= new p5.Amplitude();
+
+	fireAmount = 1;
+	
+	/////
+		
+	// Initialize Firebase and firestore, you get the config settings from the firebase console
+	// Your web app's Firebase configuration
+ var firebaseConfig = {
+    apiKey: "AIzaSyAbdmenPjXbbo317b1vr6H5J6oofbx0EoY",
+    authDomain: "buzzing-257809.firebaseapp.com",
+    databaseURL: "https://buzzing-257809.firebaseio.com",
+    projectId: "buzzing-257809",
+    storageBucket: "buzzing-257809.appspot.com",
+    messagingSenderId: "239489523688",
+    appId: "1:239489523688:web:63c5fb5d98a10475e70e5d"
+  };
+  	// Initialize Firebase
+  	firebase.initializeApp(firebaseConfig);
+
+	db = firebase.firestore();
+	//db.settings({timestampsInSnapshots: true}) 
+
+	/////
+	
+	// "listen" for changes to the firestore collection
+	db.collection("buzzing").doc("buzzingData").onSnapshot(function(returndata) {
+		//var my_x=returndata.data().mouse_x
+		var fAmount = returndata.data().f_amount
+	
+		//stroke(myc)
+		for (var i=0; i<fAmount; i++) {
+		var xPos = returndata.data().x_pos
+		var yPos = returndata.data().y_pos
+		fireflies[i] = new firefly(xPos, yPos);
+	}
+	
+	});
+
+}
+
+function draw() {
+	var amp = analyzer.getLevel();
+	
+	var draw_x=map(rotationY, -90, 90, 0, displayWidth, true);
+	var draw_y=map(rotationX, -180, 180, 0, displayHeight, true);
+	
+	//background
+	background(back, 255);
+	push();
+	translate(-displayWidth, -displayHeight);
+	image(back, draw_x, draw_y, displayWidth*2, displayHeight*2)
+	pop();
+	
+	//tree
+	
+	//trunk
+	push();
+	stroke(64, 45, 16);
+	strokeWeight(50);
+	line(draw_x, draw_y, displayWidth/2, displayHeight/2);
+	pop();
+	
+	//leaves
+	push();
+	strokeWeight(amp*50);
+	stroke(45, 76, 140);
+	fill(45, 76, 140);
+	ellipse(displayWidth/2-rotationY, displayHeight/2-rotationX, 220, 220);
+	ellipse(displayWidth/2-rotationY*2, displayHeight/2-rotationX*2, 160, 160);
+	ellipse(displayWidth/2-rotationY*3, displayHeight/2-rotationX*3, 100, 100);
+	pop();
+		
+	//fireflies set
+	for (var i=0 ; i<fireflies.length ; i++){
+		fireflies[i].show();
+		fireflies[i].move();
+    }
+}
+ 
+class firefly {
+	constructor(xPos, yPos) {
+		this.x = xPos;
+		this.y = yPos;
+	}
+	
+	show(){
+		var amp = analyzer.getLevel();
+		
+		push();
+		noStroke();
+		fill(228, 232, 111, amp*800);
+		ellipse(this.x,this.y, 40+amp*100, 40+amp*100);
+		pop();
+		push();
+		stroke(228, 232, 111);
+		strokeWeight(30*amp);
+		fill(255);
+		ellipse(this.x,this.y, 20, 20);
+		pop();
+	};
+	
+	move() {
+		this.x += random(-2,2);
+		this.y += random(-2,2);
+		if(this.x>displayWidth+50, this.x<-50){
+			this.x = random(displayWidth);
+			this.y = random(displayHeight);
+		}
+		if(this.y>displayHeight+50, this.y<-50){
+			this.x = random(displayWidth);  
+			this.y = random(displayHeight);
+		}
+	}
+}
+
+function touchEnded() {
+	 db.collection("buzzing").doc("buzzingData").update({
+		x_pos: mouseX,
+		y_pos: mouseY,
+		f_amount: fireAmount, 
+	})
+}
+	
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+
+</body></html>
+

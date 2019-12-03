@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head><title>Speet</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+
+<!--><style> 
+body {padding: 0; margin: 0;
+-webkit-user-select: none;
+} 
+
+</style>-->
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script>
+var diameter1;
+var diameter2;
+var diameter3;
+var diameter4;
+var diameter5;
+var x1, x2, x3, x4, x5;
+var y1, y2, y3, y4, y5;
+var song;
+var score = 0;
+var trans = 0;
+
+function preload() {
+	song = loadSound('data/caproll.mp3');
+}
+
+function setup() {
+	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	analyzer= new p5.Amplitude();
+		
+	diameter1 = 70;
+	diameter2 = 70;
+	diameter3 = 70;
+	diameter4 = 70;
+	diameter5 = 70;
+		
+	x1 = random(40,displayWidth-40);
+	x2 = random(40,displayWidth-40);
+	x3 = random(40,displayWidth-40);
+	x4 = random(40,displayWidth-40);
+	x5 = random(40,displayWidth-40);
+	y1 = random(40,displayHeight-40);
+	y2 = random(40,displayHeight-40);
+	y3 = random(40,displayHeight-40);
+	y4 = random(40,displayHeight-40);
+	y5 = random(40,displayHeight-40);
+}
+	
+function draw() {	
+	//touches.forEach(touchEnded);
+		
+	background(255);
+	var amp = analyzer.getLevel();
+	var s = floor(song.currentTime());
+	var time = 48 - s;
+	var acc_y = floor(accelerationY);
+	
+	if(acc_y<-5 | acc_y>5){
+		trans += 10;
+	} else {
+		trans -= 5;
+	}
+
+	push();	
+	strokeWeight(amp*100);
+	stroke(random(255), random(255), random(255), trans);
+	fill(random(255), random(255), random(255), trans);
+	ellipse(x1, y1, diameter1, diameter1);
+	//ellipse(x2, y2, diameter2, diameter2);
+	//ellipse(x3, y3, diameter3, diameter3);
+	//ellipse(x4, y4, diameter4, diameter4);
+	//ellipse(x5, y5, diameter5, diameter5);
+	pop();
+	
+	noStroke();
+	fill('red');
+	textSize(30);
+	text(score, 0, 30);
+	text(time, displayWidth-40, 30);
+		
+	/*
+		push();
+		fill('white');
+		ellipse(displayWidth/2, displayHeight/2, 50, 50);
+		textSize(30);
+		fill('black');
+		text(s, (displayWidth/2)-10, (displayHeight/2)+10); 
+		pop();	
+	*/
+}
+
+/*function myfunction (value, index){
+	// Check if touch is inside the circle
+	console.log(index)
+	console.log(value)
+	fill(100,0,200,20)
+	ellipse(value.x,value.y,30,50)
+}*/
+
+function touchEnded() {
+		var distance_1 = dist(mouseX, mouseY, x1, y1);
+		//var distance_2 = dist(mouseX, mouseY, x2, y2);
+		//var distance_3 = dist(mouseX, mouseY, x3, y3);
+		//var distance_4 = dist(mouseX, mouseY, x4, y4);
+		//var distance_5 = dist(mouseX, mouseY, x5, y5);
+	
+		if (distance_1 < diameter1/2) {
+			x1 = random(30,displayWidth-30);
+			y1 = random(30,displayHeight-30);
+			//x2 = random(30,displayWidth-30);
+			//y2 = random(30,displayHeight-30);
+			//x3 = random(30,displayWidth-30);
+			//y3 = random(30,displayHeight-30);
+			//x4 = random(30,displayWidth-30);
+			//y4 = random(30,displayHeight-30);
+			//x5 = random(30,displayWidth-30);
+			//y5 = random(30,displayHeight-30);
+			
+			score = score + 1;
+		}
+}
+
+function get_permission_to_use_motion() { // DO NOT CHANGE!
+    if (typeof DeviceMotionEvent !== "undefined") { 
+		if (typeof DeviceMotionEvent.requestPermission === 'function') {
+		  DeviceMotionEvent.requestPermission()
+			.then(permissionState => {
+			  if (permissionState === 'granted') {
+			  	document.getElementById("get_permission_button").style.display="none"	
+			  	loop();		
+			  }
+			})
+			.catch(console.error);
+		} else{
+			alert("not an ios13 device")
+			console.log("not an ios13 device")
+			document.getElementById("get_permission_button").style.display="none"	
+		}
+	
+	}else {
+			alert("not an mobile device")
+			console.log("not an mobile device")
+			document.getElementById("get_permission_button").style.display="none"	
+	
+    }
+}
+
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+</script>
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+#get_permission_button{
+font-size: 60pt;
+color: rgb(255,0,0);
+display: block;
+position: absolute;
+top: 90px;
+left: 20px;
+z-index: 1;
+}
+</style>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>

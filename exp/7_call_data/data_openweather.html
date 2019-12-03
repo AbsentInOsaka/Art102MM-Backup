@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Windmill</title>
+ 	<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+#get_permission_button{
+font-size: 60pt;
+color: rgb(255,0,0);
+display: block;
+position: absolute;
+top: 90px;
+left: 20px;
+z-index: 1;
+}
+</style>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/libraries/geolocation/p5.geolocation.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.dom.js"></script>
+
+<script>
+
+var locationData;
+var angle = 0;
+var xPos = 0;
+var wSpeed = 0;
+var song;
+
+function preload(){
+	locationData =  getCurrentPosition(); //see https://github.com/bmoren/p5.geolocation#getcurrentposition-used-in-preload
+	song = loadSound('data/wws.mp3'); 
+}
+	
+function setup() {
+	// Request the data from openweathermap
+	// Use your own app id. Get yours here: https://openweathermap.org/appid
+	var url = 'https://api.openweathermap.org/data/2.5/weather?lat='+locationData.latitude+'&lon='+locationData.longitude+'&APPID=28646aabf10a97aaaae671444a757751';
+	print(url);
+	loadJSON(url, gotWeather);
+	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	analyzer= new p5.Amplitude();
+	angleMode(DEGREES);
+	rectMode(CENTER);
+}
+
+function gotWeather(data) {
+	
+	//data printed to the console so you can see them
+	print("Latitude:" + locationData.latitude)
+    print("Longitude:" + locationData.longitude)
+	print ("Place Name:"+ data.name);
+	print ("Weather Main:" + data.weather[0].main);
+	print ("Description:"+data.weather[0].description);
+	print ("Wind Speed:"  +data.wind.speed);
+	print ("Humidity:"+data.main.humidity);
+	print ("Temperature:"+data.main.temp);
+	print ("Visibility:"+data.visibility);
+	
+	wSpeed = data.wind.speed;
+
+}
+
+function draw(){
+	var amp = analyzer.getLevel();
+	background(156, 224, 255);
+	noStroke();
+	
+	//sun
+	push();
+	translate(displayWidth/2, displayHeight/2-200);
+	fill(255, 253, 201);
+	ellipse(0, 0, displayWidth/2 + amp*100, displayWidth/2 + amp*100);
+	fill(255);
+	ellipse(0, 0, displayWidth/2, displayWidth/2);
+	pop();
+	
+	//outline
+		//barn
+	push();
+	fill(255);
+	translate(displayWidth/2, displayHeight/2+200);
+	rect(0, 0, 102, 502);
+	pop();
+		//roof
+	push();
+	fill(255);
+	triangle(displayWidth/2-64, displayHeight/2-48, displayWidth/2, displayHeight/2-102, displayWidth/2+64, displayHeight/2-48);
+	pop();
+		//crosses
+	push();
+	translate(displayWidth/2, displayHeight/2);
+	fill(255);
+	rotate(angle);
+	rect(0, 0, 12, 252);
+	rect(0, 0, 252, 12);
+	pop();
+	
+	//shapes
+		//barn
+	push();
+	fill(237, 184, 173);
+	translate(displayWidth/2, displayHeight/2+200);
+	rect(0, 0, 100, 500);
+	pop();
+		//roof
+	push();
+	fill(142, 175, 189);
+	triangle(displayWidth/2-60, displayHeight/2-50, displayWidth/2, displayHeight/2-100, displayWidth/2+60, displayHeight/2-50);
+	pop();
+		//crosses
+	push();
+	translate(displayWidth/2, displayHeight/2);
+	fill(200);
+	rotate(angle);
+	rect(0, 0, 10, 250);
+	rect(0, 0, 250, 10);
+	pop();
+	
+	angle += wSpeed;
+}
+
+function get_permission_to_use_motion() { // DO NOT CHANGE!
+    if (typeof DeviceMotionEvent !== "undefined") { 
+		if (typeof DeviceMotionEvent.requestPermission === 'function') {
+		  DeviceMotionEvent.requestPermission()
+			.then(permissionState => {
+			  if (permissionState === 'granted') {
+			  	document.getElementById("get_permission_button").style.display="none"	
+			  	loop();		
+			  }
+			})
+			.catch(console.error);
+		} else{
+			alert("not an ios13 device")
+			console.log("not an ios13 device")
+			document.getElementById("get_permission_button").style.display="none"	
+		}
+	
+	}else {
+			alert("not an mobile device")
+			console.log("not an mobile device")
+			document.getElementById("get_permission_button").style.display="none"	
+	
+    }
+}
+
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>

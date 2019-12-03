@@ -1,0 +1,195 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<title>Buzzing Lights</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+<script>
+
+var song;
+var back;
+var fireflies = [];
+var fAmount;
+var myred;
+var mygreen;
+var myblue;
+
+function preload(){
+	song = loadSound('data/lightnow.mp3');	
+	back = loadImage('data/grasspixn.jpg');
+}
+
+function setup(){
+  	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	analyzer= new p5.Amplitude();
+	
+	myred = floor(random(255));
+	mygreen = floor(random(255));
+	myblue = floor(random(255));
+	
+	fAmount = 1;
+	
+	///////
+	
+	var firebaseConfig = {
+    apiKey: "AIzaSyDUX2ecFyBy39TA6LmoB9eUVAcbfzLYrYY",
+    authDomain: "lights-7637c.firebaseapp.com",
+    databaseURL: "https://lights-7637c.firebaseio.com",
+    projectId: "lights-7637c",
+    storageBucket: "lights-7637c.appspot.com",
+    messagingSenderId: "72595058229",
+    appId: "1:72595058229:web:f1415b2470170416664b7c"
+  };
+	
+	// Initialize Firebase
+  	firebase.initializeApp(firebaseConfig);
+
+	db = firebase.firestore();
+	//db.settings({timestampsInSnapshots: true}) 
+	
+	db.collection("buzzing").doc("buzzinData").onSnapshot(function(returndata) {
+		//var my_x=returndata.data().mouse_x
+		var xPos = returndata.data().x_pos
+		var yPos = returndata.data().y_pos
+		var the_red = returndata.data().r
+		var the_green = returndata.data().g
+		var the_blue = returndata.data().b
+		var fAmount = returndata.data().f_amount
+		
+		for (var i=0; i<fAmount; i++) {
+			fireflies[i] = new firefly(xPos, yPos, the_red, the_green, the_blue);
+		}	
+	});
+	
+	db.collection("buzzing").doc("buzzinData").update({
+		x_pos: mouseX,
+		y_pos: mouseY,
+		f_amount: fAmount
+	})
+}
+
+function draw(){
+	var amp = analyzer.getLevel();
+	
+	var draw_x=map(rotationY, -90, 90, 0, displayWidth, true);
+	var draw_y=map(rotationX, -180, 180, 0, displayHeight, true);
+	
+	//background
+	background(back, 255);
+	push();
+	translate(-displayWidth, -displayHeight);
+	image(back, draw_x, draw_y, displayWidth*2, displayHeight*2)
+	pop();
+	
+	//tree
+	
+	//trunk
+	push();
+	stroke(64, 45, 16);
+	strokeWeight(50);
+	line(draw_x, draw_y, displayWidth/2, displayHeight/2);
+	pop();
+	
+	//leaves
+	push();
+	strokeWeight(amp*50);
+	stroke(45, 76, 140);
+	fill(45, 76, 140);
+	ellipse(displayWidth/2-rotationY, displayHeight/2-rotationX, 220, 220);
+	ellipse(displayWidth/2-rotationY*2, displayHeight/2-rotationX*2, 160, 160);
+	ellipse(displayWidth/2-rotationY*3, displayHeight/2-rotationX*3, 100, 100);
+	pop();
+		
+	//fireflies set
+	for (var i=0 ; i<fireflies.length ; i++){
+		fireflies[i].show();
+		fireflies[i].move();
+    }
+    
+    //instructions
+   		push();
+		noStroke();
+		fill(255);
+		textSize(10);
+		text('Tap and Move to start', displayWidth/2-45, displayHeight/2);
+		text('Shake to make friends!', displayWidth/2-50, displayHeight/2+10);
+		pop();
+}
+
+class firefly {
+	constructor(xPos, yPos, the_red, the_green, the_blue) {
+		this.x = xPos;
+		this.y = yPos;
+		this.r = the_red;
+		this.g = the_green;
+		this.b = the_blue;
+	}
+	
+	show(){
+		var amp = analyzer.getLevel();
+
+		noStroke();
+		fill(this.r, this.g, this.b, amp*800);
+		ellipse(this.x,this.y, 40+amp*100, 40+amp*100);
+		stroke(this.r, this.g, this.b,);
+		strokeWeight(30*amp);
+		fill(255);
+		ellipse(this.x,this.y, 20, 20);
+	};
+	
+	move() {
+		this.x += random(-2,2);
+		this.y += random(-2,2);
+		if(this.x>displayWidth+50, this.x<-50){
+			this.x = random(displayWidth);
+			this.y = random(displayHeight);
+		}
+		if(this.y>displayHeight+50, this.y<-50){
+			this.x = random(displayWidth);  
+			this.y = random(displayHeight);
+		}
+	}
+}
+
+function touchMoved() {
+	db.collection("buzzing").doc("buzzinData").update({
+		x_pos: mouseX,
+		y_pos: mouseY,
+		r: myred,
+		g: mygreen,
+		b: myblue,
+		f_amount: fAmount
+	})
+}
+
+function deviceShaken() {
+	db.collection("buzzing").doc("buzzinData").update({
+		f_amount: fAmount
+	})
+	fAmount += 1;
+}
+
+function BlockMove(event) {
+		event.preventDefault();
+	}
+  
+</script>
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+</style>
+</head>
+<body ontouchmove="BlockMove(event);" >
+</body>
+</html>

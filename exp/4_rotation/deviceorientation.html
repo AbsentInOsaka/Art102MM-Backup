@@ -1,0 +1,243 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<title>They Glow For You</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script>
+
+var song;
+var back;
+var fireflies = [];
+var snowfall = [];
+var sAmount = 30;
+var fAmount = 15;
+
+function preload(){
+	song = loadSound('data/furr.mp3');	
+	back = loadImage('data/grasspix.jpg');
+}
+
+function setup(){
+  	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	analyzer= new p5.Amplitude();
+	
+	for (var i=0; i<fAmount; i++) {
+		var x = random(displayWidth);
+		var y = random(displayHeight);
+		fireflies[i] = new firefly(x, y);
+	}	
+	for (var i=0; i<sAmount; i++) {
+		var y = random(displayHeight);
+		var x = random(displayWidth, displayWidth*2);
+		snowfall[i] = new snow(x, y);
+	}	
+}
+
+function draw(){
+	var s = floor(song.currentTime());
+	var amp = analyzer.getLevel();
+	
+	var draw_x=map(rotationY, -90, 90, 0, displayWidth, true);
+	var draw_y=map(rotationX, -180, 180, 0, displayHeight, true);
+	
+	//background
+	background(back, 255);
+	push();
+	translate(-displayWidth, -displayHeight);
+	//var colorZ = map(rotationZ, 0, 359, 54, 230, true);
+	//var transZ = map(rotationZ, 0, 359, 0, 100, true);
+	var colorZ = map(s, 0, 113, 54, 230, true);
+	var transZ = map(s, 0, 113, 0, 100, true);
+	var transZb = map(s, 113, 143, 0, 50, true);
+	fill(colorZ, 163, 54, transZ);
+	image(back, draw_x, draw_y, displayWidth*2, displayHeight*2)
+	rect(displayWidth, displayHeight, displayWidth, displayHeight);
+	fill(255, 255, 255, transZb);
+	rect(displayWidth, displayHeight, displayWidth, displayHeight);
+	pop();
+	
+	//tree
+	
+	//trunk
+	push();
+	stroke(138, 91, 10);
+	strokeWeight(50);
+	line(draw_x, draw_y, displayWidth/2, displayHeight/2);
+	pop();
+	
+	//leaves
+	var colorZ = map(s, 0, 113, 54, 230, true);
+	var transZ = map(s, 113, 143, 0, 255, true);
+	push();
+	strokeWeight(amp*50);
+	stroke(colorZ, 163, 54);
+	fill(colorZ, 163, 54);
+	ellipse(displayWidth/2-rotationY, displayHeight/2-rotationX, 220, 220);
+	pop();
+		push();
+		noStroke();
+		fill(255, 255, 255, transZ);
+		ellipse(displayWidth/2-rotationY, displayHeight/2-rotationX, 210, 210);
+		pop();
+	push();
+	strokeWeight(amp*50);
+	stroke(colorZ, 163, 54);
+	fill(colorZ, 163, 54);
+	ellipse(displayWidth/2-rotationY*2, displayHeight/2-rotationX*2, 160, 160);
+	pop();
+		push();
+		noStroke();
+		fill(255, 255, 255, transZ);
+		ellipse(displayWidth/2-rotationY*2, displayHeight/2-rotationX*2, 150, 150);
+		pop();
+	push();
+	strokeWeight(amp*50);
+	stroke(colorZ, 163, 54);
+	fill(colorZ, 163, 54);
+	ellipse(displayWidth/2-rotationY*3, displayHeight/2-rotationX*3, 100, 100);
+	pop();
+		push();
+		noStroke();
+		fill(255, 255, 255, transZ);
+		ellipse(displayWidth/2-rotationY*3, displayHeight/2-rotationX*3, 90, 90);
+		pop();
+		
+    /*//timer
+    	push();
+		fill('white');
+		ellipse(displayWidth/2, displayHeight/2, 50, 50);
+		textSize(30);
+		fill('black');
+		text(s, (displayWidth/2)-10, (displayHeight/2)+10); 
+		pop();
+		
+	//mvmt tracker
+		//text times: 75, 151
+		push();
+		textSize(10);
+		fill('black');
+		text(floor(rotationX), 0, 10);
+		text(floor(rotationY), 0, 20);
+		text(floor(rotationZ), 0, 30);
+		pop();*/
+	
+	//dark
+		/*push();
+		fill(29, 134, 179, s);
+		rect(0, 0, displayWidth, displayHeight);
+		pop();*/
+		
+	//fireflies set
+	for (var i=0 ; i<fireflies.length ; i++){
+		fireflies[i].show();
+		fireflies[i].move();
+    }
+    //snowfall set
+    if(s>110){
+    	for (var i=0 ; i<snowfall.length ; i++){
+    		snowfall[i].show();
+    		snowfall[i].move();
+    	}
+    }
+}
+
+class firefly {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	show(){
+		var amp = analyzer.getLevel();
+		var s = floor(song.currentTime());
+		//var Xoff = 0;
+		//var Yoff = 100;
+		push();
+		noStroke();
+		fill(228, 232, 111, amp*800);
+		if(s>110){
+			fill(228, 232, 111, 143-s);
+		}
+		ellipse(this.x,this.y, 40+amp*100, 40+amp*100);
+		pop();
+		push();
+		stroke(228, 232, 111);
+		strokeWeight(30*amp);
+		if(s>110){
+			strokeWeight(0);
+		}
+		fill(255);
+		if(s>110){
+			fill(255, 143-s);
+		}
+		ellipse(this.x,this.y, 20, 20);
+		//lightup
+		//erase();
+		//ellipse(this.x, this.y, 80+amp*100, 80+amp*100);
+		//noErase();
+		pop();
+		
+		//Xoff += 0.01;
+		//Yoff += 0.01;
+	};
+	
+	move() {
+		this.x += random(-2,2);
+		this.y += random(-2,2);
+		if(this.x>displayWidth+50, this.x<-50){
+			this.x = random(displayWidth);
+			this.y = random(displayHeight);
+		}
+		if(this.y>displayHeight+50, this.y<-50){
+			this.x = random(displayWidth);  
+			this.y = random(displayHeight);
+		}
+	}
+}
+
+class snow {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	show() {
+		var amp = analyzer.getLevel();
+		var s = floor(song.currentTime());
+		stroke(255);
+		strokeWeight(5+10*amp);
+		fill(146, 203, 247);
+		ellipse(this.x, this.y, 15, 15);
+	}
+	
+	move() {
+		this.y += random(-4, 4);
+		this.x -= 5;
+		if(this.x<-20){
+			this.x = random(displayWidth, displayWidth*2);
+		}
+	}
+}	
+
+function BlockMove(event) {
+		event.preventDefault();
+	}
+  
+</script>
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+</style>
+</head>
+<body ontouchmove="BlockMove(event);" >
+</body>
+</html>

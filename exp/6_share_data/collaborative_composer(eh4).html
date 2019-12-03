@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test Draw</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="myicon144.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+<style>
+body {padding: 0; margin: 0;} 
+</style>  
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="http://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-firestore.js"></script>
+<script>
+
+var db;  
+var song;
+var back;
+var myred;
+var mygreen;
+var myblue;
+
+function preload() {
+	song = loadSound('data/lightnow.mp3');	
+	back = loadImage('data/grasspixn.jpg');
+}
+
+function setup() {
+	createCanvas(displayWidth, displayHeight);
+	song.setVolume(0.5);
+	song.play();
+	analyzer= new p5.Amplitude();
+	
+	myred=floor(random(255));
+	mygreen=floor(random(255));
+	myblue=floor(random(255));
+	
+	//background
+	background(back, 255);
+
+	/////
+		
+	// Initialize Firebase and firestore, you get the config settings from the firebase console
+	// Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyA9f-nqUZiIqjEU6l0AIwzE3ubBuYG5cPM",
+    authDomain: "art-102-database.firebaseapp.com",
+    databaseURL: "https://art-102-database.firebaseio.com",
+    projectId: "art-102-database",
+    storageBucket: "art-102-database.appspot.com",
+    messagingSenderId: "520487220499",
+    appId: "1:520487220499:web:6e83cf4e133c8fdee5d6e6",
+    measurementId: "G-LESC1KPQ5G"
+  };
+  	// Initialize Firebase
+  	firebase.initializeApp(firebaseConfig);
+
+	db = firebase.firestore();
+	//db.settings({timestampsInSnapshots: true}) 
+	
+	db.collection("data1").doc("collaborative_draw").update({
+		r: myred,
+		g: mygreen,
+		b: myblue
+	})
+}
+
+function draw() {
+	db.collection("data1").doc("collaborative_draw").onSnapshot(function(returndata) {
+		background(back, 50);
+	});
+	
+	db.collection("data1").doc("collaborative_draw").onSnapshot(function(returndata) {
+		var my_x=returndata.data().mouse_x
+		var my_y=returndata.data().mouse_y
+		var the_red=returndata.data().r
+		var the_green=returndata.data().g
+		var the_blue=returndata.data().b
+		var amp = analyzer.getLevel();
+		
+		//fireflies
+		noStroke();
+		fill(the_red, the_green, the_blue, amp*100);
+		ellipse(my_x, my_y, 30, 30);
+		fill(255);
+		ellipse(my_x, my_y, 10, 10);
+	});
+}
+ 
+function touchMoved() {
+	db.collection("data1").doc("collaborative_draw").update({
+		mouse_x: mouseX,
+		mouse_y: mouseY,
+	})
+}
+	
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+
+</body></html>
+

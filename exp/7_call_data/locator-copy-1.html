@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Locator</title>
+ 	<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+body{
+color: rgb(0,0,0);
+padding: 0; 
+margin: 0; 
+}
+#get_permission_button{
+font-size: 60pt;
+color: rgb(255,0,0);
+display: block;
+position: absolute;
+top: 90px;
+left: 20px;
+z-index: 1;
+}
+</style>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/libraries/geolocation/p5.geolocation.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.dom.js"></script>
+
+<script>
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  console.log('starting');
+	noStroke();
+  // get position once
+  if (!navigator.geolocation) {
+    alert("navigator.geolocation is not available");
+  }
+  navigator.geolocation.getCurrentPosition(setPos);
+}
+
+function setPos(position) {
+  var lat = position.coords.latitude;
+  var lng = position.coords.longitude;
+  background(0);
+  fill(255);
+  textSize(32);
+  text("Current position: " + nf(lat,2,2) + " " + nf(lng,2,2), 10, height/2);
+}
+
+function get_permission_to_use_motion() { // DO NOT CHANGE!
+    if (typeof DeviceMotionEvent !== "undefined") { 
+		if (typeof DeviceMotionEvent.requestPermission === 'function') {
+		  DeviceMotionEvent.requestPermission()
+			.then(permissionState => {
+			  if (permissionState === 'granted') {
+			  	document.getElementById("get_permission_button").style.display="none"	
+			  	loop();		
+			  }
+			})
+			.catch(console.error);
+		} else{
+			alert("not an ios13 device")
+			console.log("not an ios13 device")
+			document.getElementById("get_permission_button").style.display="none"	
+		}
+	
+	}else {
+			alert("not an mobile device")
+			console.log("not an mobile device")
+			document.getElementById("get_permission_button").style.display="none"	
+	
+    }
+}
+
+function BlockMove(event) {
+	// Tell Safari not to move the window.
+	event.preventDefault() ;
+}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>

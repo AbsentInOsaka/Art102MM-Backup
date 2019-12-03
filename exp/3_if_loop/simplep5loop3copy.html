@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head><title>The Spinning</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="../images/circle180.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+
+<!-- Android, not sure if working --> 
+<meta name="theme-color" content="#014473">
+
+<style> 
+body {
+padding: 0; 
+margin: 0;
+-webkit-user-select: none;
+} 
+</style>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/p5.js"></script>
+<script language="javascript" type="text/javascript" src="https://class.arts.ucsb.edu/~art102/includes/p5/addons/p5.sound.js"></script>
+<script>
+//notes
+//8 seconds ahead on iphone for 24fps
+// 10? seconds ahead on iphone for 12fps
+//song used - Among The Sef by Colin Stetson
+	var radius = 0;
+	var radius2 = 0;
+	var radius3 = 0;
+	var amount_of_rects = 0;
+	var song;
+	var img;
+	var angle = 0;
+	
+	function preload(){
+		song = loadSound('data/spirals.mp3');	
+		/*img = loadImage('data/spiral3.png');*/
+	}
+
+	function setup() {
+		createCanvas(displayWidth, displayHeight);
+		frameRate(12);
+		song.setVolume(0.5);
+		song.play();
+		analyzer= new p5.Amplitude();
+	}
+	  
+	function draw() {
+		var s = floor(song.currentTime());
+		var amp = analyzer.getLevel();
+		background(255, amp*700);
+		radius = radius + 1;
+		radius2 = radius2 + 1;
+		radius3 = radius3 + 1;
+		amount_of_rects = amount_of_rects*amp*3 + 40
+		
+		if (radius > displayHeight/4) {
+			radius = 0
+		}
+		
+		if (radius2 > displayHeight/7) {
+			radius2 = 0
+		}
+		
+		if (radius3 > displayHeight/3) {
+			radius3 = 0
+		}
+		
+		//center circle
+		push();
+		for(i=0;i<amount_of_rects;i++){
+			var circle_center_x=displayWidth/2;
+			var circle_center_y=displayHeight/2;
+			var myc=color(30,30,30,amp*700);
+			fill(myc);
+			noStroke();
+		
+			var myw= random(5, 10);
+			var myh = random(5, 10);
+			
+			var myx=(circle_center_x + radius * Math.cos(2 * Math.PI * i / amount_of_rects));
+			var myy=(circle_center_y + radius * Math.sin(2 * Math.PI * i / amount_of_rects));	
+
+			var corner_r=random(10);
+			rect(myx, myy, myw, myh, corner_r);
+		}
+		pop();
+		
+		//outer circles
+		push();
+		if (s > 102) {
+		for(i=0;i<amount_of_rects;i++){
+			var circle_center_x=random(displayWidth);
+			var circle_center_y=random(displayHeight);
+			var myc=color(30,30,30,amp*1500);
+			fill(myc);
+			noStroke();
+		
+			var myw= random(25, 30);
+			var myh = random(25, 30);
+			
+			var myx=(circle_center_x + radius * Math.cos(2 * Math.PI * i / amount_of_rects));
+			var myy=(circle_center_y + radius * Math.sin(2 * Math.PI * i / amount_of_rects));	
+
+			var corner_r=random(10);
+			rect(myx, myy, myw, myh, corner_r);
+		}
+		}
+		pop();
+		
+		//outer circles 2
+		push();
+		if (s > 18) {
+		for(i=0;i<amount_of_rects;i++){
+			var circle_center_x=random(displayWidth);
+			var circle_center_y=random(displayHeight);
+			var myc=color(30,30,30,amp*200);
+			fill(myc);
+			noStroke();
+		
+			var myw= random(15, 20);
+			var myh = random(15, 20);
+			
+			var myx=(circle_center_x + radius * Math.cos(2 * Math.PI * i / amount_of_rects));
+			var myy=(circle_center_y + radius * Math.sin(2 * Math.PI * i / amount_of_rects));	
+
+			var corner_r=random(10);
+			rect(myx, myy, myw, myh, corner_r);
+		}
+		}
+		pop();
+		
+		//second circle
+		push();
+		if (s > 113) {
+		for(i=0;i<amount_of_rects;i++){
+			var circle_center_x=displayWidth/2;
+			var circle_center_y=displayHeight/2;
+			var myc=color(30,30,30,amp*700);
+			fill(myc);
+			noStroke();
+		
+			var myw= random(5, 10);
+			var myh = random(5, 10);
+			
+			var myx=(circle_center_x + radius2 * Math.cos(2 * Math.PI * i / amount_of_rects));
+			var myy=(circle_center_y + radius2 * Math.sin(2 * Math.PI * i / amount_of_rects));	
+
+			var corner_r=random(10);
+			rect(myx, myy, myw, myh, corner_r);
+		}
+		}
+		pop();
+		
+		//third circle
+		push();
+		if (s > 113) {
+		for(i=0;i<amount_of_rects;i++){
+			var circle_center_x=displayWidth/2;
+			var circle_center_y=displayHeight/2;
+			var myc=color(30,30,30,amp*700);
+			fill(myc);
+			noStroke();
+		
+			var myw= random(5, 10);
+			var myh = random(5, 10);
+			
+			var myx=(circle_center_x + radius3 * Math.cos(2 * Math.PI * i / amount_of_rects));
+			var myy=(circle_center_y + radius3 * Math.sin(2 * Math.PI * i / amount_of_rects));	
+
+			var corner_r=random(10);
+			rect(myx, myy, myw, myh, corner_r);
+		}
+		}
+		pop();
+		
+		/*push();
+		fill('white');
+		ellipse(displayWidth/2, displayHeight/2, 50, 50);
+		textSize(30);
+		fill('black');
+		text(s, (displayWidth/2)-10, (displayHeight/2)+10); 
+		pop();*/
+		
+		//18 sec
+	}
+
+	//this function is called when a ontouchmove is triggered in the body. It is not a p5 function
+	function BlockMove(event) {
+		// Tell the browser to not to "bounce" the content.
+		event.preventDefault();
+	}
+
+</script>
+</head>
+<body ontouchmove="BlockMove(event);">
+</body>
+</html>
